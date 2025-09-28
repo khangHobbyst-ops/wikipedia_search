@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Wikipedia Search",
+  "version": "0.0",
+  "description": "Search clicked term for you.",
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Wikipedia Search"
+  },
+  "content_scripts": [
+    {
+      "css":["scripts/content.css"],
+      "js": ["scripts/content.js"],
+      "matches": [
+        "<all_urls>"
+    ]
+    }
+  ],
+  "web_accessible_resources": [{
+    "resources": ["images/Wikipedia-logo-v2.svg.png",
+                "images/Loading_icon.gif"],
+    "matches": ["<all_urls>"]
+    }]
+}
