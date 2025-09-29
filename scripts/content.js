@@ -47,7 +47,7 @@ function read_more_wiki(iframe){
 
             read_more_wiki.style.position='fixed';
 
-            read_more_wiki.style.top=`${iframeY+height-35}px`;
+            read_more_wiki.style.top=`${iframeY+height}px`;
             read_more_wiki.style.left=`${iframeX+width-85}px`;
 
             read_more_wiki.style.zIndex='10002';
@@ -76,6 +76,7 @@ function retriveSearch(searchWord,event){
         iframe.style.width = `${width}px`;
         iframe.style.height = `${height}px`;
         iframe.style.paddingBottom='35px';
+        iframe.style.backgroundColor='white';
         place_iframe(event, iframe);
     document.body.appendChild(iframe);
 
@@ -86,6 +87,7 @@ function retriveSearch(searchWord,event){
         
         
         const loading_pic = document.createElement('img');
+        loading_pic.id='wikiLoadingPic';
         loading_pic.src = chrome.runtime.getURL("images/Loading_icon.gif");
         loading_pic.width = width;
         loading_pic.height = height;
@@ -131,7 +133,11 @@ document.addEventListener('mouseup', (event) => {
 document.addEventListener('mousedown', function(event){
     const iframe = document.getElementById(modalID);
     // Ignore clicks on the Wiki it img
-    if (iframe && event.target.id !== "wikiIT" && event.target.id !== modalID && event.target.id !== "read_more_wiki") {
+    if (iframe && event.target.id !== "wikiIT" &&
+         event.target.id !== modalID && 
+         event.target.id !== "read_more_wiki" &&
+            event.target.id !=='wikiLoadingPic'
+        ) {
         iframe.remove();
         const img = document.getElementById('wikiIT');
 
@@ -140,6 +146,9 @@ document.addEventListener('mousedown', function(event){
         const read_more_wiki = document.getElementById('read_more_wiki');
 
         if (read_more_wiki) read_more_wiki.remove();
+
+        const loading_pic= document.getElementById('wikiLoadingPic');
+        loading_pic.remove();
     }
 }, false);
 
