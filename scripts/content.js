@@ -4,7 +4,7 @@ const windowWidth = window.innerWidth;
 const windowHeight = window.innerHeight;
 const width = 800;
 const height=400;
-
+var current='';
 function place_iframe(event,iframe){
     
         if (event.clientX + width < windowWidth)
@@ -80,18 +80,39 @@ function retriveSearch(searchWord,event){
     }
 }
 
-document.addEventListener('dblclick', function (event) {
-    if(document.getSelection().type == "Range"){//something is selected
+document.addEventListener('selectionchange', (event) => {
+  if(document.getSelection().type == "Range"){//something is selected
         if(typeof document.getSelection().focusNode.nodeValue == "string"){//a string is selected
             if(document.getSelection().getRangeAt(0).toString().trim().length > 0){//the string is not empty or whitespace
-                let searchWord = document.getSelection().getRangeAt(0).toString().trim();
-                retriveSearch(searchWord, event);
+                current = document.getSelection().getRangeAt(0).toString().trim();
+                
             }
         }
     }
 });
 
-document.addEventListener('click', function(event){
+document.addEventListener('mouseup', (event) => {
+    console.log(current);
+
+    if (current)
+    {
+        retriveSearch(current, event);
+        current='';
+    }
+});
+
+// document.addEventListener('dblclick', function (event) {
+//     if(document.getSelection().type == "Range"){//something is selected
+//         if(typeof document.getSelection().focusNode.nodeValue == "string"){//a string is selected
+//             if(document.getSelection().getRangeAt(0).toString().trim().length > 0){//the string is not empty or whitespace
+//                 let searchWord = document.getSelection().getRangeAt(0).toString().trim();
+//                 retriveSearch(searchWord, event);
+//             }
+//         }
+//     }
+// });
+
+document.addEventListener('mousedown', function(event){
     const iframe = document.getElementById(modalID);
     // Ignore clicks on the Wiki it img
     if (iframe && event.target.id !== "wikiIT" && event.target.id !== modalID) {
