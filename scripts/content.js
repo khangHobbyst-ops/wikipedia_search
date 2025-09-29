@@ -147,13 +147,20 @@ document.addEventListener('mouseover', (event) => {
 });
 document.addEventListener('mousemove', (event) => {
     if (objectHREF && old_pos.X !== undefined && old_pos.Y !== undefined) {
-        const delta_X = Math.abs(event.clientX - old_pos.X);
-        const delta_Y = Math.abs(event.clientY - old_pos.Y);
-        if (Math.max(delta_X, delta_Y) > 100) {
-            check_to_erase(event);
+        const rect = objectHREF.getBoundingClientRect();
+        const mouseX = event.clientX;
+        const mouseY = event.clientY;
+
+        // Check if mouse is outside the bounding rect of objectHREF
+        if (
+            mouseX < rect.left ||
+            mouseX > rect.right ||
+            mouseY < rect.top ||
+            mouseY > rect.bottom
+        ) {
             objectHREF = undefined;
-            old_pos.X = undefined;
-            old_pos.Y = undefined;
+            old_pos = { X: undefined, Y: undefined };
+            check_to_erase(event);
         }
     }
 });
