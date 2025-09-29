@@ -57,9 +57,9 @@ function retriveSearch(searchWord,event){
     img.style.zIndex = '10001';
 
     // Get bounding rect of event.target
-    const rect = event.target.getBoundingClientRect();
-    img.style.top = `${rect.top + window.scrollY}px`;
-    img.style.left = `${rect.left + window.scrollX}px`;
+    //const rect = event.target.getBoundingClientRect();
+    img.style.top = `${event.clientY + window.scrollY}px`;
+    img.style.left = `${event.clientX + window.scrollX}px`;
 
     document.body.appendChild(img);
 
