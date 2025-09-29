@@ -31,6 +31,30 @@ function place_iframe(event,iframe){
 
 }
 
+function read_more_wiki(iframe){
+    const read_more_wiki=document.createElement('a');
+
+            read_more_wiki.id='read_more_wiki';
+
+            read_more_wiki.innerHTML = "Read more";
+
+            read_more_wiki.href=iframe.contentWindow.location.href;
+            read_more_wiki.target='blank';
+
+
+            const iframeX=iframe.offsetLeft;
+            const iframeY=iframe.offsetTop;
+
+            read_more_wiki.style.position='fixed';
+
+            read_more_wiki.style.top=`${iframeY+height-35}px`;
+            read_more_wiki.style.left=`${iframeX+width-85}px`;
+
+            read_more_wiki.style.zIndex='10002';
+
+            document.body.appendChild(read_more_wiki);
+}
+
 function retriveSearch(searchWord,event){
     const img = document.createElement('img');
 
@@ -51,6 +75,7 @@ function retriveSearch(searchWord,event){
         iframe.style.position = 'fixed';
         iframe.style.width = `${width}px`;
         iframe.style.height = `${height}px`;
+        iframe.style.paddingBottom='35px';
         place_iframe(event, iframe);
     document.body.appendChild(iframe);
 
@@ -74,6 +99,7 @@ function retriveSearch(searchWord,event){
             iframe.style.zIndex='10001';
             iframe.style.display = 'inline';
             loading_pic.remove();
+            read_more_wiki(iframe); //append read_more to the bottom;
         });
         
         this.remove();
@@ -101,25 +127,19 @@ document.addEventListener('mouseup', (event) => {
     }
 });
 
-// document.addEventListener('dblclick', function (event) {
-//     if(document.getSelection().type == "Range"){//something is selected
-//         if(typeof document.getSelection().focusNode.nodeValue == "string"){//a string is selected
-//             if(document.getSelection().getRangeAt(0).toString().trim().length > 0){//the string is not empty or whitespace
-//                 let searchWord = document.getSelection().getRangeAt(0).toString().trim();
-//                 retriveSearch(searchWord, event);
-//             }
-//         }
-//     }
-// });
 
 document.addEventListener('mousedown', function(event){
     const iframe = document.getElementById(modalID);
     // Ignore clicks on the Wiki it img
-    if (iframe && event.target.id !== "wikiIT" && event.target.id !== modalID) {
+    if (iframe && event.target.id !== "wikiIT" && event.target.id !== modalID && event.target.id !== "read_more_wiki") {
         iframe.remove();
         const img = document.getElementById('wikiIT');
 
         if (img) img.remove();
+
+        const read_more_wiki = document.getElementById('read_more_wiki');
+
+        if (read_more_wiki) read_more_wiki.remove();
     }
 }, false);
 
