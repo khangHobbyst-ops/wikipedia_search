@@ -3,7 +3,7 @@ const modalID = "popup_wikipedia_iframe";
 const windowWidth = window.innerWidth;
 const windowHeight = window.innerHeight;
 const width = 800;
-const height=400;
+const height=435;
 
 function place_iframe(event,iframe){
     
@@ -31,6 +31,30 @@ function place_iframe(event,iframe){
 
 }
 
+function read_more_wiki(iframe){
+    const read_more_wiki=document.createElement('a');
+
+            read_more_wiki.id='read_more_wiki';
+
+            read_more_wiki.innerHTML = "Read more";
+
+            read_more_wiki.href=iframe.src;
+            read_more_wiki.target='blank';
+
+
+            const iframeX=iframe.offsetLeft;
+            const iframeY=iframe.offsetTop;
+
+            read_more_wiki.style.position='fixed';
+
+            read_more_wiki.style.top=`${iframeY+height-35}px`;
+            read_more_wiki.style.left=`${iframeX+width-85}px`;
+
+            read_more_wiki.style.zIndex='10002';
+
+            document.body.appendChild(read_more_wiki);
+}
+
 function retriveSearch(searchWord,event){
     const img = document.createElement('img');
 
@@ -51,6 +75,8 @@ function retriveSearch(searchWord,event){
         iframe.style.position = 'fixed';
         iframe.style.width = `${width}px`;
         iframe.style.height = `${height}px`;
+        iframe.style.paddingBottom='35px';
+        iframe.style.backgroundColor='#fff';
         place_iframe(event, iframe);
     document.body.appendChild(iframe);
 
@@ -59,8 +85,9 @@ function retriveSearch(searchWord,event){
         event.stopPropagation(); // Prevent global click handler from firing
         
         
-        
+        //add loading animation//////////////////////////////
         const loading_pic = document.createElement('img');
+        loading_pic.id='loading_pic';
         loading_pic.src = chrome.runtime.getURL("images/Loading_icon.gif");
         loading_pic.width = width;
         loading_pic.height = height;
@@ -68,12 +95,14 @@ function retriveSearch(searchWord,event){
         loading_pic.style.zIndex = '10002';
         place_iframe(event, loading_pic);
         document.body.appendChild(loading_pic);
+        /////////////////////////////////////////////////////
 
         iframe.addEventListener('load', () => {
             console.log('loaded');
             iframe.style.zIndex='10001';
             iframe.style.display = 'inline';
             loading_pic.remove();
+            read_more_wiki(iframe); //append read_more to the bottom;
         });
         
         this.remove();
@@ -94,11 +123,20 @@ document.addEventListener('dblclick', function (event) {
 document.addEventListener('click', function(event){
     const iframe = document.getElementById(modalID);
     // Ignore clicks on the Wiki it img
-    if (iframe && event.target.id !== "wikiIT" && event.target.id !== modalID) {
+    if (iframe && event.target.id !== "wikiIT" && event.target.id !== modalID && event.target.id !== "read_more_wiki") {
         iframe.remove();
         const img = document.getElementById('wikiIT');
 
         if (img) img.remove();
+        
+        const loading_pic = document.getElementById('loading_pic');
+
+        if (loading_pic) loading_pic.remove();
+
+        const read_more_wiki = document.getElementById('read_more_wiki');
+
+        if (read_more_wiki) read_more_wiki.remove();
+        
     }
 }, false);
 
