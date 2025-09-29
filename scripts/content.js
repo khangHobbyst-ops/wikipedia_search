@@ -5,54 +5,45 @@ const windowHeight = window.innerHeight;
 const width = 800;
 const height=400;
 var current='';
-function place_iframe(event,iframe){
-    
-        if (event.clientX + width < windowWidth)
-        {
-            iframe.style.left = `${event.clientX}px`;
-            iframe.style.right = ''; // Ensure right style is cleared
-        }
-        else{
-            iframe.style.right = `${windowWidth - event.clientX}px`;
-            iframe.style.left = ''; // Ensure left style is cleared
-        }
-            
 
-        if (event.clientY + height < windowHeight)
+function check_to_erase(event){
+    if ( event.target.id !== "wikiIT" &&
+         event.target.id !== modalID && 
+            event.target.id !=='wikiLoadingPic'
+        ) {
+         
+        for (const ID_x of ["wikiIT",modalID,'wikiLoadingPic'])
         {
-            iframe.style.top = `${event.clientY}px`;
-            iframe.style.bottom = ''; // Ensure bottom style is cleared
-        }
-        else
-        {
-            iframe.style.bottom = `${windowHeight - event.clientY}px`;
-            iframe.style.top = ''; // Ensure top style is cleared
-        }
+            const all_elements=document.querySelectorAll(`#${ID_x}`);
 
+            for (const elem of all_elements) 
+                elem.remove();
+        }
+    }
 }
 
-function read_more_wiki(iframe){
-    const read_more_wiki=document.createElement('a');
+function place_iframe(event,iframe){
 
-            read_more_wiki.id='read_more_wiki';
+        const rect = event.target.getBoundingClientRect();
 
-            read_more_wiki.innerHTML = "Read more";
+        // Calculate left/right position
+        if (rect.left + width < windowWidth) {
+            iframe.style.left = `${rect.left + window.scrollX}px`;
+            iframe.style.right = '';
+        } else {
+            iframe.style.right = `${windowWidth - rect.right - window.scrollX}px`;
+            iframe.style.left = '';
+        }
 
-            read_more_wiki.href=iframe.contentWindow.location.href;
-            read_more_wiki.target='blank';
+        // Calculate top/bottom position
+        if (rect.top + height < windowHeight) {
+            iframe.style.top = `${rect.top + window.scrollY}px`;
+            iframe.style.bottom = '';
+        } else {
+            iframe.style.bottom = `${windowHeight - rect.bottom - window.scrollY}px`;
+            iframe.style.top = '';
+        }
 
-
-            const iframeX=iframe.offsetLeft;
-            const iframeY=iframe.offsetTop;
-
-            read_more_wiki.style.position='fixed';
-
-            read_more_wiki.style.top=`${iframeY+height}px`;
-            read_more_wiki.style.left=`${iframeX+width-85}px`;
-
-            read_more_wiki.style.zIndex='10002';
-
-            document.body.appendChild(read_more_wiki);
 }
 
 function retriveSearch(searchWord,event){
@@ -62,20 +53,24 @@ function retriveSearch(searchWord,event){
     img.id = 'wikiIT';
     img.width = 35;
     img.height = 35;
-    img.style.position = 'fixed';
-    img.style.top = `${event.clientY}px`;
-    img.style.left = `${event.clientX}px`;
+    img.style.position = 'absolute';
     img.style.zIndex = '10001';
+
+    // Get bounding rect of event.target
+    const rect = event.target.getBoundingClientRect();
+    img.style.top = `${rect.top + window.scrollY}px`;
+    img.style.left = `${rect.left + window.scrollX}px`;
+
     document.body.appendChild(img);
 
     const iframe = document.createElement('iframe');
         iframe.style.display='none';
         iframe.src = `https://en.m.wikipedia.org/w/index.php?search=${searchWord}`;
         iframe.id = "popup_wikipedia_iframe";
-        iframe.style.position = 'fixed';
+        iframe.style.position = 'absolute';
         iframe.style.width = `${width}px`;
         iframe.style.height = `${height}px`;
-        iframe.style.paddingBottom='35px';
+        //iframe.style.paddingBottom='35px';
         iframe.style.backgroundColor='white';
         place_iframe(event, iframe);
     document.body.appendChild(iframe);
@@ -85,23 +80,20 @@ function retriveSearch(searchWord,event){
         event.stopPropagation(); // Prevent global click handler from firing
         
         
-        
         const loading_pic = document.createElement('img');
         loading_pic.id='wikiLoadingPic';
         loading_pic.src = chrome.runtime.getURL("images/Loading_icon.gif");
         loading_pic.width = width;
         loading_pic.height = height;
-        loading_pic.style.position = 'fixed';
+        loading_pic.style.position = 'absolute';
         loading_pic.style.zIndex = '10002';
         place_iframe(event, loading_pic);
         document.body.appendChild(loading_pic);
 
         iframe.addEventListener('load', () => {
-            console.log('loaded');
             iframe.style.zIndex='10001';
             iframe.style.display = 'inline';
             loading_pic.remove();
-            read_more_wiki(iframe); //append read_more to the bottom;
         });
         
         this.remove();
@@ -120,7 +112,6 @@ document.addEventListener('selectionchange', (event) => {
 });
 
 document.addEventListener('mouseup', (event) => {
-    console.log(current);
 
     if (current)
     {
@@ -128,27 +119,46 @@ document.addEventListener('mouseup', (event) => {
         current='';
     }
 });
+var objectHREF=undefined;
+var old_pos={X:undefined, Y:undefined};
 
+document.addEventListener('mouseover', (event) => {
+    if (event.target.closest('a')) {
+        const linkElement = event.target.closest('a');
+        //update pos
+        old_pos.X = event.clientX;
+        old_pos.Y = event.clientY;
 
-document.addEventListener('mousedown', function(event){
-    const iframe = document.getElementById(modalID);
-    // Ignore clicks on the Wiki it img
-    if (iframe && event.target.id !== "wikiIT" &&
-         event.target.id !== modalID && 
-         event.target.id !== "read_more_wiki" &&
-            event.target.id !=='wikiLoadingPic'
-        ) {
-        iframe.remove();
-        const img = document.getElementById('wikiIT');
+        if (objectHREF !== event.target) {
+            objectHREF = event.target;
+            //remove the other icons
+            check_to_erase(event);
 
-        if (img) img.remove();
-
-        const read_more_wiki = document.getElementById('read_more_wiki');
-
-        if (read_more_wiki) read_more_wiki.remove();
-
-        const loading_pic= document.getElementById('wikiLoadingPic');
-        loading_pic.remove();
+            const href = linkElement.getAttribute('href');
+            // Check if href is a valid URL (starts with http or https)
+            if (href
+                // && /^https?:\/\//.test(href)
+            ) {
+                const searchWord = linkElement.textContent.trim();
+                retriveSearch(searchWord, event);
+            }
+        }
     }
+});
+document.addEventListener('mousemove', (event) => {
+    if (objectHREF && old_pos.X !== undefined && old_pos.Y !== undefined) {
+        const delta_X = Math.abs(event.clientX - old_pos.X);
+        const delta_Y = Math.abs(event.clientY - old_pos.Y);
+        if (Math.max(delta_X, delta_Y) > 100) {
+            check_to_erase(event);
+            objectHREF = undefined;
+            old_pos.X = undefined;
+            old_pos.Y = undefined;
+        }
+    }
+});
+document.addEventListener('mousedown', function(event){
+    // Ignore clicks on the Wiki it img
+    check_to_erase(event);
 }, false);
 
