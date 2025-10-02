@@ -47,60 +47,67 @@ function place_iframe(event,iframe){
 }
 
 function retriveSearch(searchWord,event){
-    const img = document.createElement('img');
+    event.stopPropagation();
+    
+        const img = document.createElement('img');
 
-    img.src = chrome.runtime.getURL("images/Wikipedia-logo-v2.svg.png");
-    img.id = 'wikiIT';
-    img.width = 35;
-    img.height = 35;
-    img.style.position = 'absolute';
-    img.style.zIndex = '10001';
+        img.src = chrome.runtime.getURL("images/Wikipedia-logo-v2.svg.png");
+        img.id = 'wikiIT';
+        img.width = 35;
+        img.height = 35;
+        img.style.position = 'absolute';
+        img.style.zIndex = '10001';
 
-    // Get bounding rect of event.target
-    //const rect = event.target.getBoundingClientRect();
+        // Get bounding rect of event.target
+        //const rect = event.target.getBoundingClientRect();
+        
+        const rect = event.target.getBoundingClientRect();
+        img.style.top = `${rect.bottom + window.scrollY - img.height}px`;
+        img.style.left = `${rect.right + window.scrollX - img.width}px`;
+
+        
+
+        document.body.appendChild(img);
+        
+
+        const iframe = document.createElement('iframe');
+            iframe.style.display='none';
+            iframe.src = `https://en.m.wikipedia.org/w/index.php?search=${searchWord}`;
+            iframe.id = "popup_wikipedia_iframe";
+            iframe.style.position = 'absolute';
+            iframe.style.width = `${width}px`;
+            iframe.style.height = `${height}px`;
+            //iframe.style.paddingBottom='35px';
+            iframe.style.backgroundColor='white';
+            place_iframe(event, iframe);
+        document.body.appendChild(iframe);
+
+
+        img.onclick = function(event) {
+            event.stopPropagation(); // Prevent global click handler from firing
+            
+            
+            const loading_pic = document.createElement('img');
+            loading_pic.id='wikiLoadingPic';
+            loading_pic.src = chrome.runtime.getURL("images/Loading_icon.gif");
+            loading_pic.width = width;
+            loading_pic.height = height;
+            loading_pic.style.position = 'absolute';
+            loading_pic.style.zIndex = '10002';
+            place_iframe(event, loading_pic);
+            document.body.appendChild(loading_pic);
+
+            iframe.addEventListener('load', () => {
+                iframe.style.zIndex='10001';
+                iframe.style.display = 'inline';
+                loading_pic.remove();
+            });
+            
+            this.remove();
+        }
     
 
-    img.style.top = `${event.clientY + window.scrollY}px`;
-    img.style.left = `${event.clientX + window.scrollX}px`;
     
-
-    document.body.appendChild(img);
-
-    const iframe = document.createElement('iframe');
-        iframe.style.display='none';
-        iframe.src = `https://en.m.wikipedia.org/w/index.php?search=${searchWord}`;
-        iframe.id = "popup_wikipedia_iframe";
-        iframe.style.position = 'absolute';
-        iframe.style.width = `${width}px`;
-        iframe.style.height = `${height}px`;
-        //iframe.style.paddingBottom='35px';
-        iframe.style.backgroundColor='white';
-        place_iframe(event, iframe);
-    document.body.appendChild(iframe);
-
-
-    img.onclick = function(event) {
-        event.stopPropagation(); // Prevent global click handler from firing
-        
-        
-        const loading_pic = document.createElement('img');
-        loading_pic.id='wikiLoadingPic';
-        loading_pic.src = chrome.runtime.getURL("images/Loading_icon.gif");
-        loading_pic.width = width;
-        loading_pic.height = height;
-        loading_pic.style.position = 'absolute';
-        loading_pic.style.zIndex = '10002';
-        place_iframe(event, loading_pic);
-        document.body.appendChild(loading_pic);
-
-        iframe.addEventListener('load', () => {
-            iframe.style.zIndex='10001';
-            iframe.style.display = 'inline';
-            loading_pic.remove();
-        });
-        
-        this.remove();
-    }
 }
 
 document.addEventListener('selectionchange', (event) => {
