@@ -58,8 +58,11 @@ function retriveSearch(searchWord,event){
 
     // Get bounding rect of event.target
     //const rect = event.target.getBoundingClientRect();
+    
+
     img.style.top = `${event.clientY + window.scrollY}px`;
     img.style.left = `${event.clientX + window.scrollX}px`;
+    
 
     document.body.appendChild(img);
 
@@ -158,8 +161,8 @@ document.addEventListener('mousemove', (event) => {
             mouseY < rect.top ||
             mouseY > rect.bottom
         ) {
-            objectHREF = undefined;
-            old_pos = { X: undefined, Y: undefined };
+            // objectHREF = undefined;
+            // old_pos = { X: undefined, Y: undefined };
             check_to_erase(event);
         }
     }
